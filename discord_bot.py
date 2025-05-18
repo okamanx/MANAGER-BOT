@@ -93,4 +93,4 @@ async def reset(ctx):
     await ctx.send("Tournament data has been reset.")
 
 # Replace with your bot token
-bot.run("MTExMjM0NTY3ODkwMTIzNDU2.ABCDEF.1234567890abcdefghijklmnopqrstuvwxyz)
+bot.run("MTExMjM0NTY3ODkwMTIzNDU2.ABCDEF.1234567890abcdefghijklmnopqrstuvwxyz")
