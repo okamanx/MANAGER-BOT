@@ -22,11 +22,9 @@ if not TOKEN:
 # Initialize Flask app
 app = Flask(__name__)
 
-# Initialize Discord bot
-intents = discord.Intents.default()
-intents.message_content = True
-intents.guilds = True  # Enable guild (server) intents
-bot = commands.Bot(command_prefix="!", intents=intents)
+# Initialize Discord bot with all necessary intents
+intents = discord.Intents.all()  # Enable all intents for debugging
+bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 # Load or initialize tournament data
 DATA_FILE = "tourney_data.json"
@@ -63,9 +61,69 @@ async def heartbeat():
 @bot.event
 async def on_ready():
     print(f"Bot logged in as {bot.user}")
+    print(f"Bot is in {len(bot.guilds)} servers:")
+    for guild in bot.guilds:
+        print(f"- {guild.name} (ID: {guild.id})")
+        # Print bot's permissions in the guild
+        bot_member = guild.get_member(bot.user.id)
+        if bot_member:
+            print(f"  Bot permissions: {bot_member.guild_permissions}")
     # Start the heartbeat task
     heartbeat.start()
     print("Heartbeat task started")
+
+@bot.event
+async def on_message(message):
+    # Ignore messages from the bot itself
+    if message.author == bot.user:
+        return
+
+    # Log all messages for debugging
+    print(f"Message received in {message.guild.name} - {message.channel.name} from {message.author}: {message.content}")
+
+    # Process commands
+    try:
+        await bot.process_commands(message)
+    except Exception as e:
+        print(f"Error processing command: {e}")
+        try:
+            await message.channel.send(f"Error processing command: {str(e)}")
+        except:
+            print("Could not send error message to channel")
+
+@bot.event
+async def on_command_error(ctx, error):
+    print(f"Command error: {error}")
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send("Command not found. Use !help to see available commands.")
+    elif isinstance(error, commands.MissingPermissions):
+        await ctx.send("You don't have permission to use this command.")
+    else:
+        await ctx.send(f"An error occurred: {str(error)}")
+
+@bot.command()
+async def help(ctx):
+    """Show all available commands"""
+    embed = discord.Embed(title="Tournament Bot Commands", color=discord.Color.blue())
+    
+    # Admin commands
+    admin_commands = """
+    `!setslots <number>` - Set tournament slots (Admin only)
+    `!teams` - List all teams (Admin only)
+    `!reset` - Reset tournament data (Admin only)
+    """
+    embed.add_field(name="Admin Commands", value=admin_commands, inline=False)
+    
+    # User commands
+    user_commands = """
+    `!register <team_name> <player1> <player2> ...` - Register a team
+    `!confirm` - Confirm team participation
+    `!slots` - Check available slots
+    `!help` - Show this help message
+    """
+    embed.add_field(name="User Commands", value=user_commands, inline=False)
+    
+    await ctx.send(embed=embed)
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -142,7 +200,10 @@ def health():
     return "OK", 200
 
 def run_bot():
-    bot.run(TOKEN)
+    try:
+        bot.run(TOKEN)
+    except Exception as e:
+        print(f"Error running bot: {e}")
 
 def run_web():
     port = int(os.environ.get('PORT', 8080))
