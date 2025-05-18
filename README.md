@@ -1,68 +1,91 @@
 # Discord Tournament Bot
 
-A Discord bot for managing tournament registrations and team management.
+A Discord bot that helps manage tournament registrations and team confirmations. The bot runs as a web service on Render's free tier.
 
 ## Features
 
 - Tournament slot management
-- Team registration
-- Team confirmation
-- Status checking
-- Admin commands for management
+- Team registration with player lists
+- Team confirmation system
+- Admin commands for tournament management
+- Web service integration for continuous uptime
 
 ## Commands
 
-- `!setslots <number>` (Admin only): Set the number of tournament slots
-- `!register <team_name> <player1> <player2> ...`: Register a team
-- `!confirm`: Confirm your team's registration
-- `!slots`: Check current slot status
-- `!teams` (Admin only): List all registered teams
-- `!reset` (Admin only): Reset all tournament data
+### Admin Commands
+- `!setslots <number>` - Set the number of available tournament slots (Admin only)
+- `!teams` - List all registered teams (Admin only)
+- `!reset` - Reset all tournament data (Admin only)
 
-## Deployment on Render
+### User Commands
+- `!register <team_name> <player1> <player2> ...` - Register a team with players
+- `!confirm` - Confirm your team's participation
+- `!slots` - Check available tournament slots
 
-1. Create a Render account at https://render.com if you haven't already
+## Setup
 
-2. Fork this repository to your GitHub account
+### Prerequisites
+- Python 3.8 or higher
+- A Discord bot token
+- A Render account
 
-3. In Render:
-   - Click "New +"
-   - Select "Web Service"
-   - Connect your GitHub repository
-   - Configure the service:
-     - Name: discord-tournament-bot
-     - Environment: Python
-     - Build Command: `pip install -r requirements.txt`
-     - Start Command: `python discord_bot.py`
-   - Add Environment Variable:
-     - Key: `DISCORD_BOT_TOKEN`
-     - Value: Your Discord bot token
-   - Click "Create Web Service"
-
-4. Wait for the deployment to complete
-
-## Local Development
+### Local Development Setup
 
 1. Clone the repository
-2. Create a `.env` file with your Discord bot token:
-   ```
-   DISCORD_BOT_TOKEN=your_bot_token_here
-   ```
-3. Install dependencies:
+2. Install dependencies:
    ```bash
    pip install -r requirements.txt
+   ```
+3. Create a `.env` file with your Discord token:
+   ```
+   DISCORD_TOKEN=your_token_here
    ```
 4. Run the bot:
    ```bash
    python discord_bot.py
    ```
 
-## Environment Variables
+### Render Deployment
 
-- `DISCORD_BOT_TOKEN`: Your Discord bot token (required)
+1. Create a new Web Service on Render
+2. Connect your repository
+3. Configure the following settings:
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `gunicorn discord_bot:app`
+4. Add environment variable:
+   - Key: `DISCORD_TOKEN`
+   - Value: Your Discord bot token
+5. Deploy!
 
-## Security Notes
+### Discord Bot Setup
 
-- Never commit your `.env` file or expose your bot token
-- The bot token is stored securely in Render's environment variables
-- Admin commands are restricted to users with administrator permissions 
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
+2. Create a new application
+3. Go to the "Bot" section
+4. Enable "Message Content Intent" under Privileged Gateway Intents
+5. Copy the bot token
+6. Add the bot to your server using the OAuth2 URL generator
+
+## Web Endpoints
+
+- `/` - Main page showing bot status
+- `/health` - Health check endpoint
+
+## Data Storage
+
+The bot stores tournament data in a JSON file (`tourney_data.json`) with the following structure:
+```json
+{
+    "slots": 0,
+    "teams": [],
+    "confirmed": []
+}
+```
+
+## Contributing
+
+Feel free to submit issues and enhancement requests!
+
+## License
+
+This project is open source and available under the MIT License. 
