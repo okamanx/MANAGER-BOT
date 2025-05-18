@@ -44,9 +44,9 @@ def save_data(data):
 
 data = load_data()
 
-@tasks.loop(minutes=10)
+@tasks.loop(seconds=30)
 async def heartbeat():
-    """Send a heartbeat message every 10 minutes to the botlogs channel"""
+    """Send a heartbeat message every 30 seconds to the botlogs channel"""
     try:
         # Get current timestamp
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
