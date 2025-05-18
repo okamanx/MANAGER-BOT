@@ -3,6 +3,8 @@ from discord.ext import commands
 import json
 import os
 from dotenv import load_dotenv
+from flask import Flask
+import threading
 
 # Load environment variables
 load_dotenv()
@@ -16,6 +18,10 @@ print("Token first few chars:", TOKEN[:10] + "..." if TOKEN else "None")
 if not TOKEN:
     raise ValueError("No token found. Please set the DISCORD_TOKEN environment variable.")
 
+# Initialize Flask app
+app = Flask(__name__)
+
+# Initialize Discord bot
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
@@ -105,4 +111,26 @@ async def reset(ctx):
     save_data(data)
     await ctx.send("Tournament data has been reset.")
 
-bot.run(TOKEN)
+# Flask routes
+@app.route('/')
+def home():
+    return "Discord Bot is running!"
+
+@app.route('/health')
+def health():
+    return "OK", 200
+
+def run_bot():
+    bot.run(TOKEN)
+
+def run_web():
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)
+
+if __name__ == '__main__':
+    # Start the bot in a separate thread
+    bot_thread = threading.Thread(target=run_bot)
+    bot_thread.start()
+    
+    # Run the Flask app in the main thread
+    run_web()
