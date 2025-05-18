@@ -7,6 +7,15 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Debug logging for token
+TOKEN = os.getenv('DISCORD_TOKEN')
+print("Token exists:", bool(TOKEN))
+print("Token length:", len(TOKEN) if TOKEN else 0)
+print("Token first few chars:", TOKEN[:10] + "..." if TOKEN else "None")
+
+if not TOKEN:
+    raise ValueError("No token found. Please set the DISCORD_TOKEN environment variable.")
+
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
@@ -95,10 +104,5 @@ async def reset(ctx):
     data = {"slots": 0, "teams": [], "confirmed": []}
     save_data(data)
     await ctx.send("Tournament data has been reset.")
-
-# Get token from environment variable
-TOKEN = os.getenv('DISCORD_TOKEN')
-if not TOKEN:
-    raise ValueError("No token found. Please set the DISCORD_TOKEN environment variable.")
 
 bot.run(TOKEN)
