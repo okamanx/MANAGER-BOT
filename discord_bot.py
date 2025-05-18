@@ -1,10 +1,11 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import json
 import os
 from dotenv import load_dotenv
 from flask import Flask
 import threading
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -24,6 +25,7 @@ app = Flask(__name__)
 # Initialize Discord bot
 intents = discord.Intents.default()
 intents.message_content = True
+intents.guilds = True  # Enable guild (server) intents
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 # Load or initialize tournament data
@@ -42,9 +44,28 @@ def save_data(data):
 
 data = load_data()
 
+@tasks.loop(minutes=10)
+async def heartbeat():
+    """Send a heartbeat message every 10 minutes to the botlogs channel"""
+    try:
+        # Get current timestamp
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Find the botlogs channel in all servers the bot is in
+        for guild in bot.guilds:
+            botlogs_channel = discord.utils.get(guild.channels, name="botlogs")
+            if botlogs_channel:
+                await botlogs_channel.send(f"🤖 Bot is alive! Heartbeat at {current_time}")
+                print(f"Sent heartbeat to {guild.name} - {botlogs_channel.name}")
+    except Exception as e:
+        print(f"Error in heartbeat: {e}")
+
 @bot.event
 async def on_ready():
     print(f"Bot logged in as {bot.user}")
+    # Start the heartbeat task
+    heartbeat.start()
+    print("Heartbeat task started")
 
 @bot.command()
 @commands.has_permissions(administrator=True)
