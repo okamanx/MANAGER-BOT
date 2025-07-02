@@ -1,91 +1,46 @@
-# Discord Tournament Bot
+# Discord Server Management Bot
 
-A Discord bot that helps manage tournament registrations and team confirmations. The bot runs as a web service on Render's free tier.
+A simple Discord bot for server admins to lock and unlock channels. Designed for easy server moderation and management.
 
 ## Features
-
-- Tournament slot management
-- Team registration with player lists
-- Team confirmation system
-- Admin commands for tournament management
-- Web service integration for continuous uptime
-
-## Commands
-
-### Admin Commands
-- `!setslots <number>` - Set the number of available tournament slots (Admin only)
-- `!teams` - List all registered teams (Admin only)
-- `!reset` - Reset all tournament data (Admin only)
-
-### User Commands
-- `!register <team_name> <player1> <player2> ...` - Register a team with players
-- `!confirm` - Confirm your team's participation
-- `!slots` - Check available tournament slots
+- **!lock**: Locks the current channel for everyone except admins (prevents @everyone from sending messages).
+- **!unlock**: Unlocks the current channel for everyone (restores send message permission for @everyone).
+- **Admin-only commands**: Only users with the "Manage Channels" permission can use these commands.
+- **Command logging**: All admin command usage is logged to `bot_command_logs.txt`.
 
 ## Setup
 
-### Prerequisites
-- Python 3.8 or higher
-- A Discord bot token
-- A Render account
+1. **Clone this repository**
+   ```sh
+   git clone https://github.com/okamanx/dealinedcbot.git
+   cd dealinedcbot
+   ```
 
-### Local Development Setup
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
+2. **Install dependencies**
+   ```sh
    pip install -r requirements.txt
    ```
-3. Create a `.env` file with your Discord token:
+
+3. **Create a `.env` file** in the project root:
+   ```env
+   DISCORD_BOT_TOKEN=your_discord_bot_token_here
    ```
-   DISCORD_TOKEN=your_token_here
+   - Get your bot token from the [Discord Developer Portal](https://discord.com/developers/applications).
+
+4. **Run the bot**
+   ```sh
+   python discordbot/bot.py
    ```
-4. Run the bot:
-   ```bash
-   python discord_bot.py
-   ```
 
-### Render Deployment
+## Usage
+- In any text channel, type `!lock` to lock the channel (admin only).
+- Type `!unlock` to unlock the channel (admin only).
+- All command usage is logged in `bot_command_logs.txt`.
 
-1. Create a new Web Service on Render
-2. Connect your repository
-3. Configure the following settings:
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `gunicorn discord_bot:app`
-4. Add environment variable:
-   - Key: `DISCORD_TOKEN`
-   - Value: Your Discord bot token
-5. Deploy!
-
-### Discord Bot Setup
-
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Create a new application
-3. Go to the "Bot" section
-4. Enable "Message Content Intent" under Privileged Gateway Intents
-5. Copy the bot token
-6. Add the bot to your server using the OAuth2 URL generator
-
-## Web Endpoints
-
-- `/` - Main page showing bot status
-- `/health` - Health check endpoint
-
-## Data Storage
-
-The bot stores tournament data in a JSON file (`tourney_data.json`) with the following structure:
-```json
-{
-    "slots": 0,
-    "teams": [],
-    "confirmed": []
-}
-```
-
-## Contributing
-
-Feel free to submit issues and enhancement requests!
+## Security Notes
+- **Never share your bot token publicly.**
+- Keep your `.env` file private and do not commit it to public repositories.
+- Only trusted users should have the "Manage Channels" permission.
 
 ## License
-
-This project is open source and available under the MIT License. 
+MIT
