@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import os
 from dotenv import load_dotenv
-from google import genai
 import logging
 
 intents = discord.Intents.default()
@@ -12,10 +11,7 @@ intents.guilds = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 load_dotenv()
-TOKEN = "MTM4OTg5NDE2MzQxNTE3MTA4Mw.GZGpKV.hkWWbPBsSsHzLvHZgsPwP3YOaOlCPxY31vOrS8"
-GEMINI_API_KEY = "AIzaSyAA3kTzkmS7aNtexQV8QpS2-zKgpPdpTOc"
-
-client = genai.Client(api_key=GEMINI_API_KEY)
+TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 # Set up logging to a file
 logging.basicConfig(
@@ -59,20 +55,6 @@ async def unlock(ctx):
     overwrite.send_messages = True
     await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
     await ctx.send(f"🔓 {channel.mention} has been unlocked.")
-
-@bot.command()
-async def chat(ctx, *, message: str):
-    await log_command(ctx)
-    """Chat with the bot using Gemini API."""
-    try:
-        response = client.models.generate_content(
-            model='gemini-1.5-pro',
-            contents=message
-        )
-        reply = response.text.strip() if getattr(response, 'text', None) else str(response)
-        await ctx.send(f"{ctx.author.mention} {reply}")
-    except Exception as e:
-        await ctx.send(f"Sorry {ctx.author.mention}, I couldn't process your request. Error: {e}")
 
 if not TOKEN:
     raise ValueError("DISCORD_BOT_TOKEN is not set in the environment.")
