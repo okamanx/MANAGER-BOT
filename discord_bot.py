@@ -4,6 +4,24 @@ import os
 from dotenv import load_dotenv
 import logging
 
+# --- Minimal Flask server for Render ---
+from flask import Flask
+from threading import Thread
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Discord bot is running!"
+
+def run():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
+# Start the web server in a separate thread
+Thread(target=run).start()
+# --- End of Flask server setup ---
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
@@ -58,4 +76,5 @@ async def unlock(ctx):
 
 if not TOKEN:
     raise ValueError("DISCORD_BOT_TOKEN is not set in the environment.")
-bot.run(TOKEN) 
+
+bot.run(TOKEN)
